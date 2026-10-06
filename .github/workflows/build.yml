@@ -1,0 +1,44 @@
+# Minden feltöltés (push) után a GitHub lefordítja az appot, és a kész APK-t kiteszi a „Releases” alá
+# („latest” kiadás: hub-app.apk) – a telefonon onnan letölthető. Kézzel is indítható: Actions → APK → Run workflow.
+name: APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Fordítás
+        run: gradle --no-daemon :app:assembleRelease
+
+      - name: Kiadás (Releases → latest → hub-app.apk)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk hub-app.apk
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest hub-app.apk \
+            --title "Hub app – ${{ github.run_number }}. fordítás" \
+            --notes "A telefonon: koppints a hub-app.apk-ra, majd Telepítés (a régi fölé települ, a beállítások maradnak)."
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hub-app
+          path: hub-app.apk
