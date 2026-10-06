@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- a weboldal színei (index.html :root) -->
+    <color name="bg">#F4F5F7</color>
+    <color name="fg">#1D2026</color>
+    <color name="mut">#6B7280</color>
+    <color name="acc">#2563EB</color>
+    <color name="icon_bg">#2563EB</color>
+</resources>

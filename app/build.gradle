@@ -1,0 +1,43 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'hu.zigbeehub.app'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'hu.zigbeehub.app'
+        minSdk 26
+        targetSdk 34
+        // a GitHub minden fordításnál növeli – így az új APK a régire települ
+        versionCode((System.getenv('GITHUB_RUN_NUMBER') ?: '1') as int)
+        versionName "1.0." + (System.getenv('GITHUB_RUN_NUMBER') ?: '0')
+    }
+
+    // Saját, állandó aláíró kulcs: minden fordítás ugyanazzal ír alá, így a frissítés a régi app fölé települ
+    // (a beállítások megmaradnak). Csak ehhez az apphoz való, a tárolóban maradhat.
+    signingConfigs {
+        hub {
+            storeFile file('hub.keystore')
+            storePassword 'hubapp1'
+            keyAlias 'hub'
+            keyPassword 'hubapp1'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.hub
+        }
+        debug {
+            signingConfig signingConfigs.hub
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
